@@ -1,9 +1,9 @@
 name: Build and Push Docker Image
 
 on:
-  push:
-    tags:
-      - 'v*'
+  release:
+    # 创建release的时候触发
+    types: [ published ]
   workflow_dispatch:
 
 env:
