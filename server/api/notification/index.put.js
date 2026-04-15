@@ -35,6 +35,19 @@ export default defineEventHandler(async (event) => {
     // 获取 telegram、email 和 serverchan 配置
     const { telegram, email, serverchan } = body
 
+    // 构建 email 配置对象，支持 SMTP 相关字段
+    const emailConfig = {
+      SMTP_HOST: email?.SMTP_HOST || '',
+      SMTP_PORT: email?.SMTP_PORT || '',
+      SMTP_USER: email?.SMTP_USER || '',
+      SMTP_PASSWORD: email?.SMTP_PASSWORD || '',
+      SMTP_SENDER: email?.SMTP_SENDER || '',
+      SMTP_SECURE: email?.SMTP_SECURE || false,
+      SMTP_REQUIRE_TLS: email?.SMTP_REQUIRE_TLS || false,
+      SMTP_INSECURE_IGNORE: email?.SMTP_INSECURE_IGNORE || false,
+      SMTP_TO: email?.SMTP_TO || ''
+    }
+
     // 构建配置对象
     const config = {
       enabled: !!enabled,
@@ -61,12 +74,7 @@ export default defineEventHandler(async (event) => {
         token: telegram?.token || '',
         chatId: telegram?.chatId || ''
       },
-      email: {
-        service: email?.service || '',
-        user: email?.user || '',
-        pass: email?.pass || '',
-        to: email?.to || ''
-      },
+      email: emailConfig,
       serverchan: {
         sendKey: serverchan?.sendKey || ''
       }
