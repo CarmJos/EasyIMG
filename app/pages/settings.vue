@@ -6,49 +6,27 @@
       <!-- 应用设置 -->
       <div class="card p-6">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">应用设置</h2>
-
         <form @submit.prevent="saveAppSettings" class="space-y-4">
           <!-- 应用名称 -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               应用名称
             </label>
-            <input
-              v-model="appSettings.appName"
-              type="text"
-              class="input"
-              placeholder="EasyImg"
-            />
+            <input v-model="appSettings.appName" type="text" class="input" placeholder="EasyImg" />
           </div>
-
           <!-- 应用 Logo -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               应用 Logo URL
             </label>
-            <input
-              v-model="appSettings.appLogo"
-              type="text"
-              class="input"
-              placeholder="留空则使用默认图标"
-            />
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              输入图片 URL，留空则显示默认图标
-            </p>
-
-            <!-- Logo 预览 -->
+            <input v-model="appSettings.appLogo" type="text" class="input" placeholder="留空则使用默认图标" />
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">输入图片 URL，留空则显示默认图标</p>
             <div v-if="appSettings.appLogo" class="mt-3 flex items-center gap-3">
               <span class="text-sm text-gray-600 dark:text-gray-400">预览：</span>
-              <img
-                :src="appSettings.appLogo"
-                alt="Logo 预览"
-                class="h-8 w-8 rounded-lg object-cover"
-                @error="logoError = true"
-              />
+              <img :src="appSettings.appLogo" alt="Logo 预览" class="h-8 w-8 rounded-lg object-cover" @error="logoError = true" />
               <span v-if="logoError" class="text-sm text-red-500">图片加载失败</span>
             </div>
           </div>
-
           <!-- 全局背景图片 -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -63,7 +41,6 @@
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
               输入图片 URL 作为全局背景，留空则使用默认背景
             </p>
-
             <!-- 背景图片预览 -->
             <div v-if="appSettings.backgroundUrl" class="mt-3">
               <span class="text-sm text-gray-600 dark:text-gray-400">预览：</span>
@@ -83,7 +60,6 @@
               <span v-if="backgroundError" class="text-sm text-red-500">图片加载失败</span>
             </div>
           </div>
-
           <!-- 毛玻璃效果 -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -102,27 +78,14 @@
               <span>30px (最大模糊)</span>
             </div>
           </div>
-
           <!-- 站点 URL -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              站点 URL(建议填写)
-            </label>
-            <input
-              v-model="appSettings.siteUrl"
-              type="text"
-              class="input"
-              placeholder="例如: https://example.com 或 http://127.0.0.1:8080"
-            />
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              用于通知消息中的图片完整链接，留空则自动使用请求时的 Host
-            </p>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">站点 URL(建议填写)</label>
+            <input v-model="appSettings.siteUrl" type="text" class="input" placeholder="例如: https://example.com 或 http://127.0.0.1:8080" />
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">用于通知消息中的图片完整链接，留空则自动使用请求时的 Host</p>
           </div>
-
           <div class="pt-4">
-            <button type="submit" class="btn-primary" :disabled="savingApp">
-              {{ savingApp ? '保存中...' : '保存设置' }}
-            </button>
+            <button type="submit" class="btn-primary" :disabled="savingApp">{{ savingApp ? '保存中...' : '保存设置' }}</button>
           </div>
         </form>
       </div>
@@ -268,6 +231,24 @@
           </div>
         </div>
       </div>
+
+      <!-- 页面设置 -->
+      <div class="card p-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">页面设置</h2>
+        <form @submit.prevent="saveDisplaySettings" class="space-y-4">
+          <!-- about 内容（Markdown） -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">关于页面内容（支持 Markdown）</label>
+            <textarea v-model="displaySettings.aboutContent" rows="8" class="input font-mono" placeholder="请输入关于页面内容，支持 Markdown"></textarea>
+          </div>
+          <!-- login 信息 -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">登录页副标题信息</label>
+            <input v-model="displaySettings.loginInfo" type="text" class="input" placeholder="EasyImg - 面向个人的图床应用" />
+          </div>
+          <button type="submit" class="btn-primary">保存页面设置</button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -318,12 +299,17 @@ const passwordForm = reactive({
 })
 const savingPassword = ref(false)
 
+// 内容显示设置
+const displaySettings = reactive({
+  aboutContent: '',
+  loginInfo: ''
+})
+
 // 保存应用设置
 async function saveAppSettings() {
   savingApp.value = true
   logoError.value = false
   backgroundError.value = false
-
   try {
     const result = await settingsStore.saveAppSettings({
       appName: appSettings.appName,
@@ -333,7 +319,6 @@ async function saveAppSettings() {
       siteUrl: appSettings.siteUrl,
       announcement: announcementSettings
     })
-
     if (result.success) {
       toastStore.success('设置已保存')
     } else {
@@ -447,17 +432,41 @@ async function updatePassword() {
   }
 }
 
+// 保存内容显示设置
+async function saveDisplaySettings() {
+  try {
+    const result = await settingsStore.saveDisplaySettings({
+      aboutContent: displaySettings.aboutContent,
+      loginInfo: displaySettings.loginInfo
+    })
+    if (result.success) {
+      toastStore.success('内容显示设置已保存')
+    } else {
+      toastStore.error(result.message || '保存失败')
+    }
+  } catch (error) {
+    toastStore.error('保存失败')
+  }
+}
+
 // 初始化
 onMounted(async () => {
-  // 获取应用设置（authStore.init() 已在插件中调用）
   await settingsStore.fetchAppSettings()
-
-  // 同步到本地状态
   appSettings.appName = settingsStore.appSettings.appName || 'EasyImg'
   appSettings.appLogo = settingsStore.appSettings.appLogo || ''
   appSettings.backgroundUrl = settingsStore.appSettings.backgroundUrl || ''
   appSettings.backgroundBlur = settingsStore.appSettings.backgroundBlur || 0
   appSettings.siteUrl = settingsStore.appSettings.siteUrl || ''
+  // 兼容旧数据
+  if (settingsStore.appSettings.theme) {
+    appSettings.theme = JSON.parse(JSON.stringify(settingsStore.appSettings.theme))
+  } else {
+    appSettings.theme = {
+      header: { type: 'img', value: '' },
+      background: { type: 'img', value: settingsStore.appSettings.backgroundUrl || '' },
+      backgroundBlur: settingsStore.appSettings.backgroundBlur || 0
+    }
+  }
 
   // 同步公告设置
   const announcement = settingsStore.appSettings.announcement || {}
@@ -467,5 +476,8 @@ onMounted(async () => {
 
   // 设置当前用户名
   newUsername.value = ''
+  // 同步 display 设置
+  displaySettings.aboutContent = settingsStore.appSettings.display?.aboutContent || ''
+  displaySettings.loginInfo = settingsStore.appSettings.display?.loginInfo || ''
 })
 </script>

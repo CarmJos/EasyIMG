@@ -10,7 +10,7 @@
           </div>
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">管理员登录</h1>
           <div class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
-            <p>EasyImg - 面向个人的图床应用</p>
+            <p>{{ loginInfo }}</p>
           </div>
         </div>
 
@@ -92,13 +92,15 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 import { useToastStore } from '~/stores/toast'
+import { useSettingsStore } from '~/stores/settings'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const toastStore = useToastStore()
+const settingsStore = useSettingsStore()
 
 // 表单数据
 const form = ref({
@@ -109,12 +111,15 @@ const form = ref({
 // 状态
 const loading = ref(false)
 const showPassword = ref(false)
+const loginInfo = ref('')
 
 // 如果已登录，重定向到首页
-onMounted(() => {
+onMounted(async () => {
   if (authStore.isAuthenticated) {
     router.push('/')
   }
+  await settingsStore.fetchAppSettings()
+  loginInfo.value = settingsStore.appSettings.display?.loginInfo || 'EasyImg - 面向个人的图床应用'
 })
 
 // 登录处理

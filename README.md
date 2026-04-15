@@ -1,11 +1,3 @@
-<div align="center">
-本项目由阿里云ESA提供加速、计算和保护
-  <a href="https://github.com/chaos-zhu/easyimg">
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01H1UU3i1Cti9lYtFrs_!!6000000000139-2-tps-7534-844.png" alt="easyimg">
-  </a>
-</div>
-
----
 
 <div align="center">
 
@@ -94,6 +86,9 @@ _✨ 简单易用的个人图床系统，基于 Nuxt.js 构建 ✨_
 - **深色模式**：支持亮色/深色主题切换
 - **响应式设计**：完美适配桌面端和移动端
 - **毛玻璃效果**：支持背景图片毛玻璃模糊效果
+
+### 🚀 分支修改
+- **自定义**: 支持自定义“关于”页面和登陆信息的提示。
 
 ## 快速开始
 

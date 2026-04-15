@@ -33,6 +33,12 @@ export default defineEventHandler(async (event) => {
       displayType: 'modal'  // 'modal' | 'banner'
     }
 
+    // 默认 display 设置
+    const defaultDisplay = {
+      aboutContent: `# 关于 EasyImg\n\nEasyImg 是一个面向个人的简洁图床应用，支持多种上传方式，支持图片管理、批量操作、API 上传等功能。\n\n- 开源地址：[GitHub](https://github.com/chaos-zhu/easyimg)\n- 主要功能：图片上传、管理、API、批量操作、内容审核等。\n- 适合个人或小团队自部署使用。\n`,
+      loginInfo: 'EasyImg - 面向个人的图床应用'
+    }
+
     if (!settings) {
       return {
         success: true,
@@ -43,7 +49,8 @@ export default defineEventHandler(async (event) => {
           backgroundBlur: 0,
           siteUrl: '',
           deletedImagesCount: deletedCount,
-          announcement: defaultAnnouncement
+          announcement: defaultAnnouncement,
+          display: defaultDisplay
         }
       }
     }
@@ -57,7 +64,8 @@ export default defineEventHandler(async (event) => {
         backgroundBlur: settings.value.backgroundBlur || 0,
         siteUrl: settings.value.siteUrl || '',
         deletedImagesCount: deletedCount,
-        announcement: settings.value.announcement || defaultAnnouncement
+        announcement: settings.value.announcement || defaultAnnouncement,
+        display: settings.value.display || defaultDisplay
       }
     }
   } catch (error) {

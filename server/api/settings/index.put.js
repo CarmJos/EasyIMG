@@ -11,7 +11,6 @@ export default defineEventHandler(async (event) => {
         message: '请先登录'
       })
     }
-
     const user = await verifyToken(token)
     if (!user) {
       throw createError({
@@ -20,110 +19,46 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // 获取当前设置
-    const currentSettings = await db.settings.findOne({ key: 'appSettings' })
-    const currentValue = currentSettings?.value || {
-      appName: 'easyimg',
-      appLogo: '',
-      backgroundUrl: '',
-      backgroundBlur: 0,
-      siteUrl: '',
-      announcement: {
-        enabled: false,
-        content: '',
-        displayType: 'modal'
-      }
-    }
-
     // 获取请求体
     const body = await readBody(event)
-
-    // 构建更新对象 - 只更新传递的字段
-    const updatedValue = { ...currentValue }
-
-    // 更新 appName（如果传递了）
-    if (body.appName !== undefined) {
-      updatedValue.appName = body.appName || 'easyimg'
+    if (!body || typeof body !== 'object' || !body.display) {
+      throw createError({
+        statusCode: 400,
+        message: '缺少 display 字段'
+      })
     }
 
-    // 更新 appLogo（如果传递了）
-    if (body.appLogo !== undefined) {
-      updatedValue.appLogo = body.appLogo || ''
-    }
-
-    // 更新 backgroundUrl（如果传递了）
-    if (body.backgroundUrl !== undefined) {
-      updatedValue.backgroundUrl = body.backgroundUrl || ''
-    }
-
-    // 更新 backgroundBlur（如果传递了）
-    if (body.backgroundBlur !== undefined) {
-      let blurValue = parseInt(body.backgroundBlur) || 0
-      if (blurValue < 0) blurValue = 0
-      if (blurValue > 20) blurValue = 20
-      updatedValue.backgroundBlur = blurValue
-    }
-
-    // 更新 siteUrl（如果传递了）
-    if (body.siteUrl !== undefined) {
-      let siteUrlValue = (body.siteUrl || '').trim()
-      if (siteUrlValue) {
-        siteUrlValue = siteUrlValue.replace(/\/+$/, '')
-      }
-      updatedValue.siteUrl = siteUrlValue
-    }
-
-    // 更新 announcement（如果传递了）
-    if (body.announcement !== undefined) {
-      if (body.announcement === null) {
-        // 如果传递 null，重置为默认值
-        updatedValue.announcement = {
-          enabled: false,
-          content: '',
-          displayType: 'modal'
-        }
-      } else {
-        // 部分更新公告配置
-        updatedValue.announcement = {
-          enabled: body.announcement.enabled !== undefined
-            ? !!body.announcement.enabled
-            : (currentValue.announcement?.enabled || false),
-          content: body.announcement.content !== undefined
-            ? body.announcement.content
-            : (currentValue.announcement?.content || ''),
-          displayType: body.announcement.displayType !== undefined
-            ? (['modal', 'banner'].includes(body.announcement.displayType) ? body.announcement.displayType : 'modal')
-            : (currentValue.announcement?.displayType || 'modal')
-        }
+    // 只允许保存 display 字段
+    const update = {
+      $set: {
+        'value.display': body.display,
+        updatedAt: new Date().toISOString()
       }
     }
-
-    // 更新设置
     await db.settings.update(
       { key: 'appSettings' },
-      {
-        $set: {
-          value: updatedValue,
-          updatedAt: new Date().toISOString()
-        }
-      },
+      update,
       { upsert: true }
     )
 
+    // 返回最新 display 字段
+    const settings = await db.settings.findOne({ key: 'appSettings' })
     return {
       success: true,
-      message: '设置已保存',
-      data: updatedValue
+      message: '关于内容已保存',
+      data: {
+        display: settings.value.display
+      }
     }
   } catch (error) {
     if (error.statusCode) {
       throw error
     }
-
-    console.error('[Settings] 更新应用设置失败:', error)
+    console.error('[Settings] 保存 display 失败:', error)
     throw createError({
       statusCode: 500,
-      message: '保存设置失败'
+      message: '保存 display 失败'
     })
   }
 })
+
