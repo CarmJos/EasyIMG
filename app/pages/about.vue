@@ -1,12 +1,11 @@
 <template>
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <template v-if="aboutContent && aboutContent.trim()">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-8">关于</h1>
       <div class="space-y-6">
         <!-- 动态渲染 Markdown 内容 -->
         <div>
           <div class="prose dark:prose-invert max-w-none">
-            <vue-markdown :source="aboutContent" />
+            <vue-markdown :source="aboutContent"/>
           </div>
         </div>
 
@@ -86,9 +85,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { useAuthStore } from '~/stores/auth'
-import { useSettingsStore } from '~/stores/settings'
+import {onMounted, reactive, ref} from 'vue'
+import {useAuthStore} from '~/stores/auth'
+import {useSettingsStore} from '~/stores/settings'
 import VueMarkdown from 'vue-markdown-render'
 
 // 页面元数据
