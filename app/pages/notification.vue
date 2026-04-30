@@ -288,86 +288,52 @@
           <Icon name="heroicons:envelope" class="w-5 h-5 inline-block mr-2 text-primary-500" />
           Email 配置
         </h2>
-
         <div class="space-y-4">
-          <!-- 邮件服务商 -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              邮件服务商 <span class="text-red-500">*</span>
-            </label>
-            <input
-              v-model="config.email.service"
-              type="text"
-              class="input"
-              placeholder="例如: QQ、126、163、Gmail"
-            />
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              支持列表: <a href="https://github.com/nodemailer/nodemailer/blob/master/lib/well-known/services.json" target="_blank" class="text-primary-500 hover:underline">点击查询</a>
-            </p>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">SMTP Host <span class="text-red-500">*</span></label>
+            <input v-model="config.email.SMTP_HOST" type="text" class="input" placeholder="SMTP 服务器地址" />
           </div>
-
-          <!-- 发件人邮箱 -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              发件人邮箱 <span class="text-red-500">*</span>
-            </label>
-            <input
-              v-model="config.email.user"
-              type="email"
-              class="input"
-              placeholder="your-email@example.com"
-            />
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              用于发送通知的邮箱地址
-            </p>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">SMTP Port <span class="text-red-500">*</span></label>
+            <input v-model="config.email.SMTP_PORT" type="number" class="input" placeholder="SMTP 端口" />
           </div>
-
-          <!-- 邮箱授权码 -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              邮箱授权码/密码 <span class="text-red-500">*</span>
-            </label>
-            <input
-              v-model="config.email.pass"
-              type="password"
-              class="input"
-              placeholder="邮箱授权码或密码"
-            />
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              大多数邮箱需要使用授权码而非登录密码，请在邮箱设置中获取
-            </p>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">SMTP User <span class="text-red-500">*</span></label>
+            <input v-model="config.email.SMTP_USER" type="text" class="input" placeholder="SMTP 用户名/邮箱" />
           </div>
-
-          <!-- 收件人邮箱 -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              收件人邮箱
-            </label>
-            <input
-              v-model="config.email.to"
-              type="email"
-              class="input"
-              placeholder="留空则发送给自己"
-            />
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              接收通知的邮箱地址，留空则发送给发件人邮箱
-            </p>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">SMTP Password <span class="text-red-500">*</span></label>
+            <input v-model="config.email.SMTP_PASSWORD" type="password" class="input" placeholder="SMTP 密码/授权码" />
           </div>
-
-          <!-- 测试按钮 -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">发件人 (From)</label>
+            <input v-model="config.email.SMTP_SENDER" type="text" class="input" placeholder="可选，默认与用户名一致" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">收件人 (To)</label>
+            <input v-model="config.email.SMTP_TO" type="text" class="input" placeholder="可选，默认与用户名一致" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">安全连接 (SSL/TLS)</label>
+            <select v-model="config.email.SMTP_SECURE" class="input">
+              <option value="none">否</option>
+              <option value="ssl">SSL</option>
+              <option value="tls">TLS/STARTTLS</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">忽略证书错误</label>
+            <select v-model="config.email.SMTP_INSECURE_IGNORE" class="input">
+              <option :value="false">否</option>
+              <option :value="true">是</option>
+            </select>
+          </div>
           <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-            <button
-              type="button"
-              @click="testEmail"
-              class="btn-secondary"
-              :disabled="testingEmail || !config.email.service || !config.email.user || !config.email.pass"
-            >
+            <button type="button" @click="testEmail" class="btn-secondary" :disabled="testingEmail || !config.email.SMTP_HOST || !config.email.SMTP_PORT || !config.email.SMTP_USER || !config.email.SMTP_PASSWORD">
               <Icon name="heroicons:paper-airplane" class="w-4 h-4 mr-2" />
               {{ testingEmail ? '测试中...' : '发送测试通知' }}
             </button>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              点击发送一条测试通知，验证邮件配置是否正确
-            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">点击发送一条测试通知，验证邮件配置是否正确</p>
           </div>
         </div>
       </div>
@@ -469,10 +435,15 @@ const config = reactive({
     chatId: ''
   },
   email: {
-    service: '',
-    user: '',
-    pass: '',
-    to: ''
+    SMTP_HOST: '',
+    SMTP_PORT: '',
+    SMTP_USER: '',
+    SMTP_PASSWORD: '',
+    SMTP_SENDER: '',
+    SMTP_TO: '',
+    SMTP_SECURE: false,
+    SMTP_REQUIRE_TLS: false,
+    SMTP_INSECURE_IGNORE: false
   },
   serverchan: {
     sendKey: ''
@@ -520,6 +491,14 @@ async function fetchConfig() {
 
     if (response.success) {
       Object.assign(config, response.data)
+      // 修正安全连接下拉框的显示
+      if (config.email.SMTP_SECURE === true || config.email.SMTP_SECURE === 'true') {
+        config.email.SMTP_SECURE = 'ssl'
+      } else if ((config.email.SMTP_SECURE === false || config.email.SMTP_SECURE === 'false') && (config.email.SMTP_REQUIRE_TLS === true || config.email.SMTP_REQUIRE_TLS === 'true')) {
+        config.email.SMTP_SECURE = 'tls'
+      } else {
+        config.email.SMTP_SECURE = 'none'
+      }
       // 同步 headers 到 JSON 字符串
       headersJson.value = JSON.stringify(config.webhook.headers || {}, null, 2)
     }
@@ -540,12 +519,35 @@ async function saveConfig() {
     toastStore.error('请求头 JSON 格式错误')
     return
   }
-
+  let secure = false
+  let requireTLS = false
+  let port = Number(config.email.SMTP_PORT)
+  if (config.email.SMTP_SECURE === 'ssl') {
+    secure = true
+    requireTLS = false
+    if (port === 0 || isNaN(port)) port = 465
+  } else if (config.email.SMTP_SECURE === 'tls') {
+    secure = false
+    requireTLS = true
+    if (port === 0 || isNaN(port)) port = 587
+  } else {
+    secure = false
+    requireTLS = false
+  }
+  const emailConfig = {
+    ...config.email,
+    SMTP_SECURE: secure,
+    SMTP_REQUIRE_TLS: requireTLS,
+    SMTP_PORT: port
+  }
   saving.value = true
   try {
     const response = await $fetch('/api/notification', {
       method: 'PUT',
-      body: config,
+      body: {
+        ...config,
+        email: emailConfig
+      },
       headers: authStore.authHeader
     })
 
@@ -631,18 +633,38 @@ async function testTelegram() {
 
 // 测试 Email
 async function testEmail() {
-  if (!config.email.service || !config.email.user || !config.email.pass) {
+  if (!config.email.SMTP_HOST || !config.email.SMTP_PORT || !config.email.SMTP_USER || !config.email.SMTP_PASSWORD) {
     toastStore.error('请先填写完整的邮件配置')
     return
   }
-
+  let secure = false
+  let requireTLS = false
+  let port = Number(config.email.SMTP_PORT)
+  if (config.email.SMTP_SECURE === 'ssl') {
+    secure = true
+    requireTLS = false
+    if (port === 0 || isNaN(port)) port = 465
+  } else if (config.email.SMTP_SECURE === 'tls') {
+    secure = false
+    requireTLS = true
+    if (port === 0 || isNaN(port)) port = 587
+  } else {
+    secure = false
+    requireTLS = false
+  }
+  const emailConfig = {
+    ...config.email,
+    SMTP_SECURE: secure,
+    SMTP_REQUIRE_TLS: requireTLS,
+    SMTP_PORT: port
+  }
   testingEmail.value = true
   try {
     const response = await $fetch('/api/notification/test', {
       method: 'POST',
       body: {
         method: 'email',
-        email: config.email
+        email: emailConfig
       },
       headers: authStore.authHeader
     })

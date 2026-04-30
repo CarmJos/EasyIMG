@@ -64,10 +64,14 @@ export function getDefaultNotificationConfig() {
     },
     // Email 配置
     email: {
-      service: '',  // 邮件服务商，如 'gmail', 'qq', '163' 等
-      user: '',     // 发件人邮箱
-      pass: '',     // 邮箱授权码/密码
-      to: ''        // 收件人邮箱（可选，默认发送给自己）
+      SMTP_HOST: '',
+      SMTP_PORT: '',
+      SMTP_USER: '',
+      SMTP_PASSWORD: '',
+      SMTP_SENDER: '',
+      SMTP_SECURE: false,
+      SMTP_INSECURE_IGNORE: false,
+      SMTP_TO: ''
     },
     // Server酱 配置
     serverchan: {
@@ -463,24 +467,31 @@ function generateEmailTemplate(content) {
  */
 async function sendEmailNotification(config, payload) {
   const { email } = config
-
-  if (!email.service || !email.user || !email.pass) {
+  if (!email.SMTP_HOST || !email.SMTP_PORT || !email.SMTP_USER || !email.SMTP_PASSWORD) {
     console.warn('[Notification] Email 配置不完整')
-    return { success: false, error: 'Email 配置不完整（需要 service、user、pass）' }
+    return { success: false, error: 'Email 配置不完整（需要 SMTP_HOST、SMTP_PORT、SMTP_USER、SMTP_PASSWORD）' }
   }
-
   try {
     console.log('[Notification] 邮件通知预发送:', payload.title)
-
-    // 创建邮件传输器
     const transporter = nodemailer.createTransport({
-      service: email.service,
+      host: email.SMTP_HOST,
+      port: Number(email.SMTP_PORT),
+      secure: email.SMTP_SECURE === true || email.SMTP_SECURE === 'true',
+      requireTLS: email.SMTP_REQUIRE_TLS === true || email.SMTP_REQUIRE_TLS === 'true',
       auth: {
-        user: email.user,
-        pass: email.pass
-      }
+        user: email.SMTP_USER,
+        pass: email.SMTP_PASSWORD
+      },
+      tls: email.SMTP_INSECURE_IGNORE ? { rejectUnauthorized: false } : undefined,
+      logger: true,
+      debug: true
     })
-
+    transporter.on('log', info => {
+      console.log('[Nodemailer][log]', info)
+    })
+    transporter.on('error', err => {
+      console.error('[Nodemailer][error]', err)
+    })
     // 检查是否有有效的图片URL
     const imageUrl = payload.data?.url || payload.data?.imageUrl
     const hasValidImageUrl = isValidImageUrl(imageUrl)
@@ -526,11 +537,11 @@ async function sendEmailNotification(config, payload) {
     htmlContent += '</div>'
 
     // 收件人地址，默认发送给自己
-    const toAddress = email.to || email.user
+    const toAddress = email.SMTP_TO || email.SMTP_USER
 
     // 发送邮件
     await transporter.sendMail({
-      from: email.user,
+      from: email.SMTP_SENDER || email.SMTP_USER,
       to: toAddress,
       subject: `[EasyImg] ${payload.title}`,
       html: generateEmailTemplate(htmlContent)
@@ -539,8 +550,15 @@ async function sendEmailNotification(config, payload) {
     console.log('[Notification] 邮件通知发送成功:', payload.title)
     return { success: true }
   } catch (error) {
-    console.error('[Notification] 邮件发送失败:', error)
-    return { success: false, error: error.message }
+    let detail = error && typeof error === 'object' ? {
+      message: error.message,
+      code: error.code,
+      response: error.response,
+      command: error.command,
+      stack: error.stack
+    } : error
+    console.error('[Notification] 邮件发送失败:', detail)
+    return { success: false, error: error.message, detail }
   }
 }
 
@@ -782,7 +800,7 @@ export async function testTelegram(telegramConfig) {
 
     console.log('[Notification] Telegram 测试通知预发送')
 
-    const message = `*测试通知*\n这是一条测试通知，用于验证 Telegram 配置是否正确。\n\n_发送时间: ${new Date().toISOString()}_`
+    const message = `*测试通知*\n这是一条测试通知，���于验证 Telegram 配置是否正确。\n\n_发送时间: ${new Date().toISOString()}_`
 
     // 创建 Bot 实例，从环境变量读取 API 地址（用于反代）
     const botOptions = {}
@@ -807,49 +825,48 @@ export async function testTelegram(telegramConfig) {
  */
 export async function testEmail(emailConfig) {
   try {
-    if (!emailConfig.service || !emailConfig.user || !emailConfig.pass) {
-      return { success: false, error: '请提供完整的邮件配置（service、user、pass）' }
+    if (!emailConfig.SMTP_HOST || !emailConfig.SMTP_PORT || !emailConfig.SMTP_USER || !emailConfig.SMTP_PASSWORD) {
+      return { success: false, error: '请提供完整的邮件配置（SMTP_HOST、SMTP_PORT、SMTP_USER、SMTP_PASSWORD）' }
     }
-
-    console.log('[Notification] Email 测试通知预发送')
-
-    // 创建邮件传输器
     const transporter = nodemailer.createTransport({
-      service: emailConfig.service,
+      host: emailConfig.SMTP_HOST,
+      port: Number(emailConfig.SMTP_PORT),
+      secure: emailConfig.SMTP_SECURE === true || emailConfig.SMTP_SECURE === 'true',
+      requireTLS: emailConfig.SMTP_REQUIRE_TLS === true || emailConfig.SMTP_REQUIRE_TLS === 'true',
       auth: {
-        user: emailConfig.user,
-        pass: emailConfig.pass
-      }
+        user: emailConfig.SMTP_USER,
+        pass: emailConfig.SMTP_PASSWORD
+      },
+      tls: emailConfig.SMTP_INSECURE_IGNORE ? { rejectUnauthorized: false } : undefined,
+      logger: true,
+      debug: true
     })
-
-    // 收件人地址，默认发送给自己
-    const toAddress = emailConfig.to || emailConfig.user
-
-    const htmlContent = `
-      <div class="header">
-        <h1>测试通知</h1>
-      </div>
-      <div class="content">
-        <p>这是一条测试通知，用于验证邮件配置是否正确。</p>
-        <div class="info-item">
-          <span class="info-label">发送时间:</span>
-          <span class="info-value">${new Date().toISOString()}</span>
-        </div>
-      </div>
-    `
-
+    // 日志输出
+    transporter.on('log', info => {
+      console.log('[Nodemailer][log]', info)
+    })
+    transporter.on('error', err => {
+      console.error('[Nodemailer][error]', err)
+    })
+    const toAddress = emailConfig.SMTP_TO || emailConfig.SMTP_USER
+    const htmlContent = `<div class="header"><h1>测试通知</h1></div><div class="content"><p>这是一条测试通知，用于验证邮件配置是否正确。</p></div>`
     await transporter.sendMail({
-      from: emailConfig.user,
+      from: emailConfig.SMTP_SENDER || emailConfig.SMTP_USER,
       to: toAddress,
       subject: '[EasyImg] 测试通知',
-      html: generateEmailTemplate(htmlContent)
+      html: htmlContent
     })
-
-    console.log('[Notification] Email 测试通知发送成功')
-    return { success: true, message: '测试通知发送成功' }
+    return { success: true }
   } catch (error) {
-    console.error('[Notification] Email 测试失败:', error)
-    return { success: false, error: error.message }
+    // 返回详细 nodemailer 错误
+    let detail = error && typeof error === 'object' ? {
+      message: error.message,
+      code: error.code,
+      response: error.response,
+      command: error.command,
+      stack: error.stack
+    } : error
+    return { success: false, error: error.message, detail }
   }
 }
 
