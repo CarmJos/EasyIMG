@@ -213,3 +213,56 @@ a {
   animation: none;
   mix-blend-mode: normal;
 }
+
+/* Markdown 渲染样式优化 */
+.prose {
+  background: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.prose :where(h1, h2, h3, h4, h5, h6, ul, ol, li, p, blockquote, pre, code) {
+  margin-top: revert;
+  margin-bottom: revert;
+}
+
+.prose :where(h1) {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.prose :where(h2) {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.prose :where(ul, ol) {
+  padding-left: 1.5rem;
+}
+
+.prose :where(li) {
+  margin-bottom: 0.25rem;
+}
+
+.prose :where(code) {
+  background: #f3f4f6;
+  color: #d6336c;
+  border-radius: 0.25rem;
+  padding: 0.2em 0.4em;
+  font-size: 0.95em;
+}
+
+.prose :where(pre) {
+  background: #f3f4f6;
+  border-radius: 0.5rem;
+  padding: 1em;
+  overflow-x: auto;
+}
+
+.dark .prose :where(code), .dark .prose :where(pre) {
+  background: #23272f;
+  color: #f9fafb;
+}

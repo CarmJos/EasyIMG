@@ -54,7 +54,7 @@
       >
         <Icon name="heroicons:photo" class="w-24 h-24 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
         <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">暂无图片</h3>
-        <p class="text-gray-500 dark:text-gray-400">上传你的第一张图片吧</p>
+        <p class="text-gray-500 dark:text-gray-400">上传您的第一张图片吧~</p>
       </div>
 
       <!-- 瀑布流图片列表 - 使用多列 Flexbox 布局避免加载新图片时位置变化 -->

@@ -103,6 +103,7 @@
 
             <!-- 关于 -->
             <NuxtLink
+              v-if="settingsStore.appSettings.display && settingsStore.appSettings.display.aboutContent && settingsStore.appSettings.display.aboutContent.trim()"
               to="/about"
               class="nav-link nav-link-icon sm:nav-link-text"
               :class="{ 'nav-link-active': route.path === '/about' }"

@@ -8,11 +8,17 @@ export const useSettingsStore = defineStore('settings', {
       appLogo: '',
       backgroundUrl: '',
       backgroundBlur: 0,
+      siteUrl: '',
       deletedImagesCount: 0,
       announcement: {
         enabled: false,
         content: '',
-        displayType: 'modal'  // 'modal' | 'banner'
+        displayType: 'modal'
+      },
+      display: {
+        // 页面设置
+        aboutContent: `# 关于 EasyImg\n\nEasyImg 是一个面向个人的简洁图床应用，支持多种上传方式，支持图片管理、批量操作、API 上传等功能。\n\n- 开源地址：[GitHub](https://github.com/chaos-zhu/easyimg)\n- 主要功能：图片上传、管理、API、批量操作、内容审核等。\n- 适合个人或小团队自部署使用。\n\n## 项目信息\n\n- 项目地址：[https://github.com/chaos-zhu/easyimg](https://github.com/chaos-zhu/easyimg)\n- TG频道：[https://t.me/easynode_notify](https://t.me/easynode_notify)\n\n## 作者其他项目\n\n### [EasyNode](https://github.com/chaos-zhu/easynode)\n一个多功能Linux&win服务器WEB终端面板(webSSH&webSFTP)\n\n### [EasyNavTab](https://github.com/chaos-zhu/easynavtab)\n开源浏览器插件，自定义新标签页\n`,
+        loginInfo: 'EasyImg - 面向个人的图床应用'
       }
     },
     publicApiConfig: {
@@ -43,17 +49,21 @@ export const useSettingsStore = defineStore('settings', {
     async fetchPublicAppSettings() {
       try {
         const response = await $fetch('/api/settings/public')
-
         if (response.success) {
-          // 只更新公共字段，保留其他字段
           this.appSettings.appName = response.data.appName
           this.appSettings.appLogo = response.data.appLogo
           this.appSettings.backgroundUrl = response.data.backgroundUrl
           this.appSettings.backgroundBlur = response.data.backgroundBlur
+          this.appSettings.siteUrl = response.data.siteUrl
+          this.appSettings.deletedImagesCount = response.data.deletedImagesCount
           this.appSettings.announcement = response.data.announcement || {
             enabled: false,
             content: '',
             displayType: 'modal'
+          }
+          this.appSettings.display = response.data.display || {
+            aboutContent: `# 关于 EasyImg\n\nEasyImg 是一个面向个人的简洁图床应用，支持多种上传方式，支持图片管理、批量操作、API 上传等功能。\n\n- 开源地址：[GitHub](https://github.com/chaos-zhu/easyimg)\n- 主要功能：图片上传、管理、API、批量操作、内容审核等。\n- 适合个人或小团队自部署使用。\n\n## 项目信息\n\n- 项目地址：[https://github.com/chaos-zhu/easyimg](https://github.com/chaos-zhu/easyimg)\n- TG频道：[https://t.me/easynode_notify](https://t.me/easynode_notify)\n\n## 作者其他项目\n\n### [EasyNode](https://github.com/chaos-zhu/easynode)\n一个多功能Linux&win服务器WEB终端面板(webSSH&webSFTP)\n\n### [EasyNavTab](https://github.com/chaos-zhu/easynavtab)\n开源浏览器插件，自定义新标签页\n`,
+            loginInfo: 'EasyImg - 面向个人的图床应用'
           }
         }
       } catch (error) {
@@ -81,19 +91,16 @@ export const useSettingsStore = defineStore('settings', {
     // 保存应用设置（完整更新，用于设置页面）
     async saveAppSettings(settings) {
       const authStore = useAuthStore()
-
       try {
         const response = await $fetch('/api/settings', {
           method: 'PUT',
           body: settings,
           headers: authStore.authHeader
         })
-
         if (response.success) {
           this.appSettings = { ...this.appSettings, ...response.data }
           return { success: true }
         }
-
         return { success: false, message: response.message }
       } catch (error) {
         return { success: false, message: error.data?.message || '保存失败' }
@@ -116,6 +123,25 @@ export const useSettingsStore = defineStore('settings', {
           return { success: true }
         }
 
+        return { success: false, message: response.message }
+      } catch (error) {
+        return { success: false, message: error.data?.message || '保存失败' }
+      }
+    },
+
+    // 保存内容显示设置
+    async saveDisplaySettings(display) {
+      const authStore = useAuthStore()
+      try {
+        const response = await $fetch('/api/settings', {
+          method: 'PUT',
+          body: { display },
+          headers: authStore.authHeader
+        })
+        if (response.success) {
+          this.appSettings.display = response.data.display
+          return { success: true }
+        }
         return { success: false, message: response.message }
       } catch (error) {
         return { success: false, message: error.data?.message || '保存失败' }
